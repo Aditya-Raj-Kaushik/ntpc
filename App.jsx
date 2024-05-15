@@ -1,6 +1,6 @@
-import Dashboard from "./Components/Dashboard/dashboard";
-import Login from "./Components/Login/login";
-import Register from "./Components/Register/register";
+import Dashboard from "./Dashboard/dashboard";
+import Login from "./login";
+import Register from "./register";
 
 
 import{
