@@ -1,7 +1,6 @@
-import Dashboard from "./Dashboard/dashboard";
-import Login from "./login";
-import Register from "./register";
-
+import Dashboard from './components/Dashboard/dashboard';
+import Login from './components/Login/login';
+import Register from './components/Register/register';
 
 import{
   createBrowserRouter,

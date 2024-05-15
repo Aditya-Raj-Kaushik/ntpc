@@ -9,7 +9,6 @@ const login = () => {
         <h1>Login</h1>
         <div className='input-box'>
             <input type="email" placeholder='Email ID' required/>
-        
         </div>
         <div className='input-box'>
             <input type="password" placeholder='Password' required/>
