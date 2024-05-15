@@ -24,8 +24,8 @@ const Login = () => {
             <a href='#'>Forgot Password?</a>
           </div>
           <button type='submit'>
-            <a href='/dashboard'></a> Login
-          </button>
+            <a href='/dashboard'>Login</a>
+            </button>
           <div className='register-link'>
             <p>
               Don't have an account? <a href='/register'>Register</a>
