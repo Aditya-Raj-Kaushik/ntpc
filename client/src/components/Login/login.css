@@ -109,6 +109,11 @@ body{
     font-weight: 700;
 }
 
+.wrapper button a{
+    color: #333;
+    text-decoration: none
+}
+
 .wrapper .register-link{
     font-size: 16.5px ;
     text-align: center;
