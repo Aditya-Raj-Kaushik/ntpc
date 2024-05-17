@@ -18,6 +18,7 @@ const register = () => {
       console.log('User created')
     })
   }
+  
   return (
     <div>
       <div className='company'>
@@ -51,6 +52,7 @@ const register = () => {
         </form>
       </div>
     </div>
+    
   )
 }
 

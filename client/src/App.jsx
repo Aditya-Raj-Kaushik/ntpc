@@ -9,7 +9,7 @@ import{
 
 const router = createBrowserRouter([
   {
-    path:'/',
+    path:'/login',
     element: <div> <Login/></div>
   },
   {
@@ -17,7 +17,7 @@ const router = createBrowserRouter([
     element: <div> <Register/></div>
   },
   {
-    path:'/page',
+    path:'/dashboard',
     element: <div> <Dashboard/></div>
   },
 ])

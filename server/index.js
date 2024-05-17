@@ -44,6 +44,24 @@ app.post('/register', (req, res) => {
 });
 
 
-app.post('/login',(req,res)=>{
-    
-})
+app.post('/login', (req, res) => {
+    const sentLoginEmail = req.body.LoginEmail;
+    const sentLoginPassword = req.body.LoginPassword;
+
+    const SQL = 'SELECT * FROM employee WHERE EmailID = ? AND Password = ?';
+    const values = [sentLoginEmail, sentLoginPassword];
+
+    db.query(SQL, values, (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Internal server error');
+        }
+        if (results.length > 0) {
+            return res.status(200).send('Login successful');
+        }
+        else {
+            return res.status(401).send('Invalid email or password');
+        }
+    });
+});
+
