@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import './login.css';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
  import logo from '../assets/logo.png'
@@ -6,6 +6,11 @@ import { FaEnvelope, FaLock } from 'react-icons/fa';
 
 const Login = () => {
   return (
+
+    
+
+
+
     <div>
       <div className='company'>
         <img className='logo' src={logo} alt='Company Logo' />
