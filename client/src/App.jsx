@@ -1,4 +1,4 @@
-import Open from './components/open/open';
+import Dashboard  from './components/Dashboard/dashboard';
 import Login from './components/Login/login';
 import Register from './components/Register/register';
 
@@ -18,7 +18,7 @@ const router = createBrowserRouter([
   },
   {
     path:'/page',
-    element: <div> <Open/></div>
+    element: <div> <Dashboard/></div>
   },
 ])
 
