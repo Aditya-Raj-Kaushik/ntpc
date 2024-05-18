@@ -5,7 +5,7 @@ const dashboard = () => {
   return (
     <div>
       <h1>Dashboard</h1>
-      <a href="/login">Log Out</a>
+      <a href="/">Log Out</a>
     </div>
   )
 }
