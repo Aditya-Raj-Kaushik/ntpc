@@ -1,77 +1,89 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
-require('dotenv').config();
+require('dotenv').config(); // Import dotenv for environment variables
+
+
+
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+
+
+
+
+// Configure CORS to allow requests from the frontend origin
+app.use(cors({
+    origin: 'http://localhost:5173'
+}));
 
 const db = mysql.createConnection({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'ntpc'
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error('Database connection failed: ' + err.stack);
-        return;
-    }
-    console.log('Connected to database.');
-});
 
-app.listen(3002, () => {
-    console.log('Running on port 3002');
-});
 
-app.post('/register', async (req, res) => {
+
+
+
+// Handle login
+app.post('/login', (req, res) => {
     try {
         const { Email, Password } = req.body;
-        const hashedPassword = await bcrypt.hash(Password, 10);
-
-        const SQL = 'INSERT INTO employee (EmailID, Password) VALUES (?, ?)';
-        const values = [Email, hashedPassword];
-
+        const SQL = 'SELECT * FROM employee WHERE EmailID = ? AND Password = ?';
+        const values = [Email, Password];
         db.query(SQL, values, (err, results) => {
             if (err) {
                 console.error(err);
-                res.status(500).send({ error: 'Database error' });
+                return res.status(500).send({ success: false, error: 'Internal server error' });
+            }
+            if (results.length > 0) {
+                return res.status(200).send({ success: true, message: 'Login successful' });
             } else {
-                console.log('User inserted successfully');
-                res.status(201).send({ message: 'User added' });
+                return res.status(401).send({ success: false, error: 'Invalid email or password' });
             }
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send({ error: 'Internal server error' });
+        res.status(500).send({ success: false, error: 'Internal server error' });
     }
 });
 
-app.post('/login', (req, res) => {
-    const { LoginEmail, LoginPassword } = req.body;
 
-    const SQL = 'SELECT * FROM employee WHERE EmailID = ?';
-    const values = [LoginEmail];
 
-    db.query(SQL, values, async (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send({ error: 'Internal server error' });
-        }
-        if (results.length > 0) {
-            const user = results[0];
-            const passwordMatch = await bcrypt.compare(LoginPassword, user.Password);
 
-            if (passwordMatch) {
-                return res.status(200).send({ message: 'Login successful' });
+
+
+
+// Handle registration
+app.post('/register', (req, res) => {
+    try {
+        const { Email, Password } = req.body;
+        const SQL = 'INSERT INTO employee (EmailID, Password) VALUES (?, ?)';
+        const values = [Email, Password];
+        db.query(SQL, values, (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send({ error: 'Database error' });
             } else {
-                return res.status(401).send({ error: 'Invalid email or password' });
+                console.log('User inserted successfully');
+                return res.status(201).send({ message: 'User added' });
             }
-        } else {
-            return res.status(401).send({ error: 'Invalid email or password' });
-        }
-    });
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ error: 'Internal server error' });
+    }
+});
+
+
+
+
+const PORT = process.env.PORT || 7001;  
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

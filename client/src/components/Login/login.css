@@ -80,8 +80,8 @@ body{
 
 .wrapper .forgot{
     font-size:14.5px ;
-    margin: -15px 0 15px;  
-    justify-content: right;
+    margin: 15px 0 15px;  
+    justify-content: center;
     padding-left: 20px; 
 }
 
