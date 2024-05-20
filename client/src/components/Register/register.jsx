@@ -1,14 +1,22 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import logo from '../assets/logo.png';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import './register.css'; // Specific styles for signup page
 
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    document.body.classList.add('signup-page');
+
+    return () => {
+      document.body.classList.remove('signup-page');
+    };
+  }, []);
 
   const createUser = async (event) => {
     event.preventDefault(); // Prevent the default form submission
@@ -71,3 +79,4 @@ const Register = () => {
 };
 
 export default Register;
+

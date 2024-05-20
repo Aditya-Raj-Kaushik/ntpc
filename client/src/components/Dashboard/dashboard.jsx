@@ -1,13 +1,21 @@
-import React from 'react'
-import "./dashboard.css"
+import React, { useEffect } from 'react';
+import "./dashboard.css";
 
-const dashboard = () => {
+const Dashboard = () => {
+  useEffect(() => {
+    document.body.classList.add('dashboard-page');
+
+    return () => {
+      document.body.classList.remove('dashboard-page');
+    };
+  }, []);
+
   return (
-    <div>
+    <div className="dashboard-container">
       <h1>Dashboard</h1>
       <a href="/">Log Out</a>
     </div>
-  )
-}
+  );
+};
 
-export default dashboard
+export default Dashboard;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './login.css';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import logo from '../assets/logo.png';
@@ -11,16 +11,23 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.body.classList.add('login-page');
+
+    return () => {
+      document.body.classList.remove('login-page');
+    };
+  }, []);
+
   const loginUser = async (event) => {
     event.preventDefault(); // Prevent default form submission
     setError(null); // Reset error state
 
     try {
       const response = await axios.post('http://localhost:7001/login', {
-      Email: loginEmail,
-      Password: loginPassword,
-    });
-    
+        Email: loginEmail,
+        Password: loginPassword,
+      });
 
       if (response.data.success) {
         navigate('/dashboard'); // Navigate to the dashboard on success
@@ -79,3 +86,4 @@ const Login = () => {
 };
 
 export default Login;
+
