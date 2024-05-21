@@ -1,0 +1,23 @@
+/* Reset common styles */
+body.transaction-page {
+    background: white;
+  }
+  
+  .transaction-container {
+    padding: 20px;
+  }
+  
+  .transaction-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .transaction-container a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .transaction-container a:hover {
+    text-decoration: underline;
+  }
+  

@@ -16,10 +16,9 @@ const Dashboard = () => {
       
       <br />
       <ul>
-        <li></li>
-        <a href="/Overview">Overview</a>
-        <li><a href=""></a></li>
-        <li><a href=""></a></li>
+        <li><a href="/Overview">Overview</a></li>      
+        <li><a href="/Receipt">Receipt & Issue</a></li>
+        <li><a href="/Transaction">Transaction</a></li>
         <li><a href="/">Log Out</a></li>
       </ul>
       

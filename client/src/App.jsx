@@ -1,7 +1,9 @@
 import Dashboard from './components/Dashboard/dashboard';
 import Login from './components/Login/login';
 import Register from './components/Register/register';
-import Overview from './components/Overview/overview'; // Ensure proper case
+import Overview from './components/Overview/overview'; 
+import Transaction from './components/Transaction/transaction';
+import Receipt from './components/Receipt/receipt';
 
 import {
   createBrowserRouter,
@@ -11,19 +13,27 @@ import {
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Login /> // Simplified JSX
+    element: <Login /> 
   },
   {
     path: '/register',
-    element: <Register /> // Simplified JSX
+    element: <Register /> 
   },
   {
     path: '/dashboard',
-    element: <Dashboard /> // Simplified JSX
+    element: <Dashboard /> 
   },
   {
     path: '/overview',
-    element: <Overview /> // Corrected case and simplified JSX
+    element: <Overview /> 
+  },
+  {
+    path: '/transaction',
+    element: <Transaction /> 
+  },
+  {
+    path: '/receipt',
+    element: <Receipt /> 
   }
 ]);
 

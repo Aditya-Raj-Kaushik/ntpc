@@ -1,0 +1,22 @@
+/* Reset common styles */
+body.receipt-page {
+    background: white;
+}
+
+.receipt-container {
+    padding: 20px;
+}
+
+.receipt-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.receipt-container a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.receipt-container a:hover {
+    text-decoration: underline;
+}
