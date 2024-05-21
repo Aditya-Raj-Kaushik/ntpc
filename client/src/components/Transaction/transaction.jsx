@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import DashboardHeader from '../Dashboard/dashboardheader';
 
 const Transaction = () => {
     useEffect(() => {
@@ -9,8 +10,10 @@ const Transaction = () => {
         };
       }, []);
   return (
-
+  <div>
+    <DashboardHeader /> 
       <h1>Transaction History</h1>
+  </div>
   );
 };
 

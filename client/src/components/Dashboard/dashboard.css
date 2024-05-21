@@ -1,23 +1,96 @@
 /* Reset common styles */
 body.dashboard-page {
-    background: white;
+  background: white;
+  padding: 0;
+}
+
+.dashboard-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Header styling */
+.header {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px; /* Fixed height */
+  padding: 0 25px; /* Padding on the left and right */
+  background-color: rgb(0, 130, 200);
+  color: white;
+  z-index: 1000;
+}
+
+/* Navbar styling */
+.navbar {
+  list-style: none;
+  display: none;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  background-color: rgb(0, 130, 200);
+  position: fixed;
+  top: 60px; /* Adjust based on header height */
+  width: 50%;
+}
+
+.navbar.open {
+  display: flex;
+}
+
+.navbar li {
+  margin: 0;
+  padding: 10px 15px; /* Consistent padding */
+  list-style: none;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}
+
+/* Hover effect for navbar items */
+.navbar li:hover {
+  background-color: rgba(255, 255, 255, 0.2); /* Light background on hover */
+  color: #fff; /* Ensure the text color is white */
+  border-radius: 5px; /* Slightly rounded corners */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Adding shadow for better visual effect */
+}
+
+/* Navbar links styling */
+.navbar a {
+  color: inherit; /* Inherit color from li */
+  text-decoration: none;
+  display: block;
+}
+
+.hamburger {
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .navbar {
+      display: flex;
+      flex-direction: row;
+      position: static; /* Default position for larger screens */
+      width: auto; /* Reset width for larger screens */
+      top: 0; /* Reset top position */
   }
-  
-  .dashboard-container {
-    padding: 20px;
+
+  .navbar.open {
+      display: flex;
+      background: transparent;
+      border: 2px solid rgba(255,255,255,.2);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 10px rgba(0,0,0,.2);
   }
-  
-  .dashboard-container h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+
+  .navbar li {
+      margin: 0 10px; /* Margin between items */
   }
-  
-  .dashboard-container a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .dashboard-container a:hover {
-    text-decoration: underline;
-  }
-  
+}

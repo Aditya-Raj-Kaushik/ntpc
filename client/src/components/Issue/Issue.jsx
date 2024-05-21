@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import DashboardHeader from '../Dashboard/dashboardheader';
 
-const Overview = () => {
+const Issue = () => {
   useEffect(() => {
     document.body.classList.add('dashboard-page');
 
@@ -13,9 +13,9 @@ const Overview = () => {
   return (
     <div>
       <DashboardHeader/>
-      <h1>Overview</h1>
+      <h1>Issue</h1>
     </div>
   );
 };
 
-export default Overview;
+export default Issue;

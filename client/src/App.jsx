@@ -4,6 +4,7 @@ import Register from './components/Register/register';
 import Overview from './components/Overview/overview'; 
 import Transaction from './components/Transaction/transaction';
 import Receipt from './components/Receipt/receipt';
+import Issue from './components/Issue/Issue';
 
 import {
   createBrowserRouter,
@@ -34,6 +35,9 @@ const router = createBrowserRouter([
   {
     path: '/receipt',
     element: <Receipt /> 
+  },{
+    path: '/issue',
+    element: <Issue /> 
   }
 ]);
 

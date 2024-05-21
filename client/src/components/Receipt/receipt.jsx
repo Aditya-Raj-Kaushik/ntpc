@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import DashboardHeader from '../Dashboard/dashboardheader';
 
 const Receipt = () => {
     useEffect(() => {
@@ -10,9 +11,10 @@ const Receipt = () => {
       }, []);
 
   return (
-
-      <h1>Receipt & Issue</h1>
-
+    <div>
+    <DashboardHeader /> 
+    <h1>Receipt</h1>
+    </div>
   );
 };
 
