@@ -13,7 +13,16 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <h1>Dashboard</h1>
-      <a href="/">Log Out</a>
+      
+      <br />
+      <ul>
+        <li></li>
+        <a href="/Overview">Overview</a>
+        <li><a href=""></a></li>
+        <li><a href=""></a></li>
+        <li><a href="/">Log Out</a></li>
+      </ul>
+      
     </div>
   );
 };

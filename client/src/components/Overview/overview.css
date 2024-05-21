@@ -1,0 +1,22 @@
+/* Reset common styles */
+body.dashboard-page {
+    background: white;
+  }
+  
+  .dashboard-container {
+    padding: 20px;
+  }
+  
+  .dashboard-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-container a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .dashboard-container a:hover {
+    text-decoration: underline;
+  }

@@ -1,34 +1,35 @@
-import Dashboard  from './components/Dashboard/dashboard';
+import Dashboard from './components/Dashboard/dashboard';
 import Login from './components/Login/login';
 import Register from './components/Register/register';
+import Overview from './components/Overview/overview'; // Ensure proper case
 
-import{
+import {
   createBrowserRouter,
   RouterProvider
-}from 'react-router-dom'
+} from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
-    path:'/',
-    element: <div> <Login/></div>
+    path: '/',
+    element: <Login /> // Simplified JSX
   },
   {
-    path:'/register',
-    element: <div> <Register/></div>
+    path: '/register',
+    element: <Register /> // Simplified JSX
   },
   {
-    path:'/dashboard',
-    element: <div> <Dashboard/></div>
+    path: '/dashboard',
+    element: <Dashboard /> // Simplified JSX
   },
-])
+  {
+    path: '/overview',
+    element: <Overview /> // Corrected case and simplified JSX
+  }
+]);
 
 function App() {
   return (
-    <>
-      <div>
-        <RouterProvider router={router}/>
-      </div>
-    </>
+    <RouterProvider router={router} />
   );
 }
 
