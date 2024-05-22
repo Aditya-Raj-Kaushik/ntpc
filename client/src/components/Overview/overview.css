@@ -10,3 +10,78 @@ body.dashboard-page {
     margin-bottom: 20px;
   }
   
+  /* App.css */
+
+.app {
+  width: 1250px;
+  font-family: 'Arial', sans-serif;
+  height: 80vh; /* Set height to 60% of viewport height */
+  background-color: #f8f9fa;
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Align children horizontally */
+  align-items: center;
+  box-sizing: border-box; /* Ensure padding is included in height */
+}
+
+.container {
+  max-width: 1000px;
+  margin: 10px; /* Margin to move the content up by 10% of viewport height */
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow-x: auto;
+  height: 80%; /* Set height to 80% of viewport height */
+  box-sizing: border-box; /* Ensure padding is included in height */
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+.input-group {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.form-control {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  font-size: 16px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  background-color: #fff;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+tr:nth-child(even) td {
+  background-color: #f9f9f9;
+}
+
+tr:hover td {
+  background-color: #f1f1f1;
+}
