@@ -1,4 +1,3 @@
-// Dashboard.js
 
 import React, { useEffect } from 'react';
 import DashboardHeader from './dashboardheader';
