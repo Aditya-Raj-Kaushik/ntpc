@@ -35,16 +35,7 @@ const Filter = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>12345</td>
-              <td>001</td>
-              <td>Main Plant</td>
-              <td>Sample Material</td>
-              <td>100</td>
-              <td>kg</td>
-              <td>10</td>
-              <td>5</td>
-            </tr>
+            
           </tbody>
         </table>
       </div>

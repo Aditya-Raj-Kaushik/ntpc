@@ -81,9 +81,22 @@ app.post('/register', (req, res) => {
 });
 
 
+app.get('/Overview', (req, res) => {
+    db.query('SELECT * FROM store', (err, rows) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        res.json(rows);
+    });
+});
+
+
 
 
 const PORT = process.env.PORT || 7001;  
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import DashboardHeader from '../Dashboard/dashboardheader';
 import Filter from './filter';
-import './overview.css'
+
 
 const Overview = () => {
   useEffect(() => {
