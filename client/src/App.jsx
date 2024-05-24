@@ -2,7 +2,7 @@ import Dashboard from './components/Dashboard/dashboard';
 import Login from './components/Login/login';
 import Register from './components/Register/register';
 import Overview from './components/Overview/overview'; 
-import Transaction from './components/Transaction/transaction';
+import Request from './components/Request/request';
 import Receipt from './components/Receipt/receipt';
 import Issue from './components/Issue/Issue';
 
@@ -29,8 +29,8 @@ const router = createBrowserRouter([
     element: <Overview /> 
   },
   {
-    path: '/transaction',
-    element: <Transaction /> 
+    path: '/request',
+    element: <Request /> 
   },
   {
     path: '/receipt',

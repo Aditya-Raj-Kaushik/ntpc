@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import DashboardHeader from '../Dashboard/dashboardheader';
 
-const Transaction = () => {
+const Request = () => {
     useEffect(() => {
         document.body.classList.add('dashboard-page');
     
@@ -12,10 +12,10 @@ const Transaction = () => {
   return (
   <div>
     <DashboardHeader /> 
-      <h1>Transaction History</h1>
+      
   </div>
   );
 };
 
-export default Transaction;
+export default Request;
 

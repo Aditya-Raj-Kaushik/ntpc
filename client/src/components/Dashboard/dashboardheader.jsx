@@ -18,7 +18,7 @@ const DashboardHeader = () => {
         <li><a href="/Overview">Overview</a></li>
         <li><a href="/Issue">Issue</a></li>
         <li><a href="/Receipt">Receipt</a></li>
-        <li><a href="/Transaction">Transaction</a></li>
+        <li><a href="/Request">Request</a></li>
         <li><a href="/">Log Out</a></li>
       </ul>
     </div>
