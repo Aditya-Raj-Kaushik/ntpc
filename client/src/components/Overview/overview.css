@@ -24,7 +24,7 @@ body.dashboard-page {
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 10px; /* Margin to move the content up by 10% of viewport height */
   background-color: #fff;
   padding: 20px;
@@ -35,7 +35,7 @@ body.dashboard-page {
   box-sizing: border-box; /* Ensure padding is included in height */
 }
 
-h1 {
+.app h1 {
   text-align: center;
   margin-bottom: 20px;
   font-size: 24px;
