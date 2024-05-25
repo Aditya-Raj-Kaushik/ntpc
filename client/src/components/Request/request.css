@@ -1,23 +1,178 @@
 /* Reset common styles */
 body.transaction-page {
-    background: white;
+  background: white;
+}
+
+/* Container Styling */
+.container {
+  max-width: 1400px; /* Increased max-width for a larger container */
+  margin: 5% auto; /* Centering the container with a top margin */
+  background-color: #fff;
+  padding: 60px; /* Increased padding for more space inside the container */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow-x: auto;
+  height: auto; /* Allow height to adjust based on content */
+  box-sizing: border-box; /* Ensure padding is included in height */
+}
+
+/* Heading Styling */
+.heading {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+/* Message Styling */
+.message {
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+/* Form Control Styling */
+.form-control {
+  width: 100%; /* Ensure input fields take full width */
+  padding: 15px; /* Increased padding for larger input fields */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 18px; /* Increased font size */
+  box-sizing: border-box;
+}
+
+.form-control select {
+  height: 52px; /* Ensure select elements match the height of input fields */
+}
+
+/* Button Styling */
+.add-entry-btn, .submit-btn, .delete-entry-btn {
+  padding: 15px 30px; /* Increased padding for a larger button */
+  border: none;
+  border-radius: 4px;
+  font-size: 18px; /* Increased font size */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 10px; /* Space between buttons */
+}
+
+.add-entry-btn {
+  background-color: white;
+  color: #007bff;
+  border: 1px solid #007bff;
+}
+
+.add-entry-btn:hover {
+  background-color: #28a745;
+  color: white;
+}
+
+.delete-entry-btn {
+  background-color: white;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+.delete-entry-btn:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.submit-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 800px) {
+  .container {
+    padding: 40px; /* Reduced padding for smaller screens */
+    max-width: 600px; /* Adjust max-width for smaller screens */
   }
-  
-  .transaction-container {
-    padding: 20px;
+
+  .form-control {
+    font-size: 16px; /* Adjust font size for smaller screens */
   }
-  
-  .transaction-container h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+
+  .add-entry-btn, .submit-btn, .delete-entry-btn {
+    width: 100%; /* Make the button full width on smaller screens */
   }
-  
-  .transaction-container a {
-    color: #007bff;
-    text-decoration: none;
+
+  th, td {
+    font-size: 14px;
+    padding: 8px;
   }
-  
-  .transaction-container a:hover {
-    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 20px; /* Further reduced padding for very small screens */
   }
-  
+
+  .form-control {
+    padding: 10px; /* Adjust padding for smaller screens */
+    font-size: 14px; /* Further adjust font size */
+  }
+
+  .add-entry-btn, .submit-btn, .delete-entry-btn {
+    padding: 10px 20px; /* Adjust padding for smaller screens */
+    font-size: 16px; /* Adjust font size */
+  }
+
+  table, th, td {
+    display: block;
+  }
+
+  th {
+    display: none;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #ccc;
+    padding: 8px;
+  }
+
+  td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    flex-basis: 50%;
+    text-align: left;
+  }
+}
