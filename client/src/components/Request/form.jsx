@@ -14,6 +14,7 @@ const Form = () => {
   ]);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log('Entries:', entries);
@@ -24,28 +25,35 @@ const Form = () => {
     const newEntries = [...entries];
     newEntries[index][name] = value;
     setEntries(newEntries);
+  };
 
-    if (name === 'MaterialCode' || name === 'MaterialShortText') {
-      fetchMaterialDetails(value, index);
+  const handleInputBlur = async (index, e) => {
+    const { name, value } = e.target;
+    if (name === 'MaterialCode' || name === 'MaterialShortText' || name === 'UOM') {
+      await fetchMaterialDetails(index);
     }
   };
 
-  const fetchMaterialDetails = async (query, index) => {
-    try {
-      const response = await axios.post('http://localhost:7001/request', { query });
-      const { MaterialCode, MaterialShortText, UOM, PlantCode } = response.data;
-      const newEntries = [...entries];
-      newEntries[index] = {
-        ...newEntries[index],
-        MaterialCode,
-        MaterialShortText,
-        UOM,
-        PlantCode
-      };
-      setEntries(newEntries);
-      showMessage('Material details fetched successfully.', 'success');
-    } catch (error) {
-      showMessage('Invalid material code or short text', 'error');
+  const fetchMaterialDetails = async (index) => {
+    const { MaterialCode, MaterialShortText, UOM } = entries[index];
+    if (MaterialCode && MaterialShortText && UOM) {
+      setLoading(true);
+      try {
+        const response = await axios.post('http://localhost:7001/request', { query: MaterialCode });
+        const { UOM: fetchedUOM, PlantCode } = response.data;
+        const newEntries = [...entries];
+        newEntries[index] = {
+          ...newEntries[index],
+          UOM: fetchedUOM,
+          PlantCode
+        };
+        setEntries(newEntries);
+        showMessage('Material details fetched successfully.', 'success');
+      } catch (error) {
+        showMessage('Invalid material code or short text', 'error');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -69,21 +77,28 @@ const Form = () => {
     showMessage('Entry deleted successfully.', 'error');
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Validation check
+  const validateEntries = () => {
+    let allEmpty = true;
     for (let entry of entries) {
-      for (let key in entry) {
-        if (!entry[key]) {
-          showMessage('Please fill in all fields before submitting.', 'error');
-          return;
-        }
+      if (!entry.MaterialCode || !entry.MaterialShortText || !entry.StockQuantity || !entry.UOM || !entry.PlantCode) {
+        return false;
+      }
+      if (entry.MaterialCode || entry.MaterialShortText || entry.StockQuantity || entry.UOM || entry.PlantCode) {
+        allEmpty = false;
       }
     }
+    return !allEmpty;
+  };
 
-    console.log('Submitted Entries:', entries);
-    showMessage('Form submitted successfully.', 'success');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateEntries()) {
+      // Handle form submission
+      console.log('Submitted Entries:', entries);
+      showMessage('Form submitted successfully.', 'success');
+    } else {
+      showMessage('Please fill out all fields in each entry.', 'error');
+    }
   };
 
   const showMessage = (msg, type) => {
@@ -122,6 +137,7 @@ const Form = () => {
                     className='form-control'
                     value={entry.MaterialCode}
                     onChange={(e) => handleInputChange(index, e)}
+                    onBlur={(e) => handleInputBlur(index, e)}
                   />
                 </td>
                 <td>
@@ -132,6 +148,7 @@ const Form = () => {
                     className='form-control'
                     value={entry.MaterialShortText}
                     onChange={(e) => handleInputChange(index, e)}
+                    onBlur={(e) => handleInputBlur(index, e)}
                   />
                 </td>
                 <td>
@@ -150,6 +167,7 @@ const Form = () => {
                     className='form-control'
                     value={entry.UOM}
                     onChange={(e) => handleInputChange(index, e)}
+                    onBlur={(e) => handleInputBlur(index, e)}
                   >
                     <option value=''>Select UOM</option>
                     <option value='kg'>kg</option>
