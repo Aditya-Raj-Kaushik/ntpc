@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './request.css';
 
 const Form = () => {
@@ -13,6 +14,7 @@ const Form = () => {
   ]);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log('Entries:', entries);
@@ -23,6 +25,35 @@ const Form = () => {
     const newEntries = [...entries];
     newEntries[index][name] = value;
     setEntries(newEntries);
+  };
+
+  const handleInputBlur = (index, e) => {
+    const { name, value } = e.target;
+    if (name === 'MaterialCode' || name === 'MaterialShortText') {
+      fetchMaterialDetails(value, index);
+    }
+  };
+
+  const fetchMaterialDetails = async (query, index) => {
+    setLoading(true);
+    try {
+      const response = await axios.post('http://localhost:7001/request', { query });
+      const { MaterialCode, MaterialShortText, UOM, PlantCode } = response.data;
+      const newEntries = [...entries];
+      newEntries[index] = {
+        ...newEntries[index],
+        MaterialCode,
+        MaterialShortText,
+        UOM,
+        PlantCode
+      };
+      setEntries(newEntries);
+      showMessage('Material details fetched successfully.', 'success');
+    } catch (error) {
+      showMessage('Invalid material code or short text', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddEntry = () => {
@@ -47,6 +78,7 @@ const Form = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Here you can handle the submission of the form
     console.log('Submitted Entries:', entries);
     showMessage('Form submitted successfully.', 'success');
   };
@@ -61,7 +93,7 @@ const Form = () => {
   };
 
   return (
-    <div className='container'>
+    <div className='form'>
       <h1 className='heading'>Store Requisition Voucher</h1>
       {message && <div className={`message ${messageType}`}>{message}</div>}
       <form onSubmit={handleSubmit}>
@@ -87,6 +119,7 @@ const Form = () => {
                     className='form-control'
                     value={entry.MaterialCode}
                     onChange={(e) => handleInputChange(index, e)}
+                    onBlur={(e) => handleInputBlur(index, e)}
                   />
                 </td>
                 <td>
@@ -97,6 +130,7 @@ const Form = () => {
                     className='form-control'
                     value={entry.MaterialShortText}
                     onChange={(e) => handleInputChange(index, e)}
+                    onBlur={(e) => handleInputBlur(index, e)}
                   />
                 </td>
                 <td>
