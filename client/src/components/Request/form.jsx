@@ -125,19 +125,16 @@ const Form = () => {
                   />
                 </td>
                 <td>
-                  <select
+                  <input
                     name='UOM'
+                    type='text'
+                    placeholder='Enter UOM'
                     className='form-control'
                     value={entry.UOM}
+                    readOnly={!!entry.UOM}
                     onChange={(e) => handleInputChange(index, e)}
                     required
-                  >
-                    <option value=''>Select UOM</option>
-                    <option value='kg'>kg</option>
-                    <option value='lbs'>lbs</option>
-                    <option value='pieces'>pieces</option>
-                    <option value='litre'>litre</option>
-                  </select>
+                  />
                 </td>
                 <td>
                   <input
