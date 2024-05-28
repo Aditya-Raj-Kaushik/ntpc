@@ -95,7 +95,7 @@ app.get('/Overview', (req, res) => {
 
 app.get('/Request', (req, res) => {
     const { code, text } = req.query;
-    let query = 'SELECT * FROM store WHERE';
+    let query = 'SELECT MaterialCode,MaterialShortText FROM store WHERE';
   
     if (code) {
       query += ` MaterialCode = '${code}'`;
