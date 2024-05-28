@@ -93,36 +93,25 @@ app.get('/Overview', (req, res) => {
 
 
 
-
-app.post('/request', (req, res) => {
-    const { query } = req.body;
+app.get('/Request', (req, res) => {
+    const { code, text } = req.query;
+    let query = 'SELECT * FROM store WHERE';
   
-    // SQL query to search for MaterialCode or MaterialShortText
-    const sql = `
-      SELECT MaterialCode, MaterialShortText
-      FROM store
-      WHERE MaterialCode = ? OR MaterialShortText LIKE ?
-    `;
+    if (code) {
+      query += ` MaterialCode = '${code}'`;
+    } else if (text) {
+      query += ` MaterialShortText LIKE '%${text}%'`;
+    }
   
-   
-    db.query(sql, [query, `%${query}%`], (err, results) => {
+    db.query(query, (err, results) => {
       if (err) {
-        console.error('Database query error:', err);
-        return res.status(500).send('Server error');
-      }
-  
-      if (results.length > 0) {
-        res.json(results[0]);
+        res.status(500).send(err);
       } else {
-        res.status(404).send('Invalid material code or short text');
+        res.json(results);
       }
     });
   });
   
-
-
-
-
 
 
 const PORT = process.env.PORT || 7001;  

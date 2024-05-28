@@ -1,24 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import './request.css';
 
 const Form = () => {
   const [entries, setEntries] = useState([
-    {
-      MaterialCode: '',
-      MaterialShortText: '',
-      StockQuantity: '',
-      UOM: '',
-      PlantCode: ''
-    }
+    { MaterialCode: '', MaterialShortText: '', StockQuantity: '', UOM: '', PlantCode: '' }
   ]);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log('Entries:', entries);
-  }, [entries]);
+  const showMessage = (msg, type) => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => {
+      setMessage('');
+      setMessageType('');
+    }, 3000);
+  };
 
   const handleInputChange = (index, e) => {
     const { name, value } = e.target;
@@ -27,47 +25,8 @@ const Form = () => {
     setEntries(newEntries);
   };
 
-  const handleInputBlur = async (index, e) => {
-    const { name, value } = e.target;
-    if (name === 'MaterialCode' || name === 'MaterialShortText' || name === 'UOM') {
-      await fetchMaterialDetails(index);
-    }
-  };
-
-  const fetchMaterialDetails = async (index) => {
-    const { MaterialCode, MaterialShortText, UOM } = entries[index];
-    if (MaterialCode && MaterialShortText && UOM) {
-      setLoading(true);
-      try {
-        const response = await axios.post('http://localhost:7001/request', { query: MaterialCode });
-        const { UOM: fetchedUOM, PlantCode } = response.data;
-        const newEntries = [...entries];
-        newEntries[index] = {
-          ...newEntries[index],
-          UOM: fetchedUOM,
-          PlantCode
-        };
-        setEntries(newEntries);
-        showMessage('Material details fetched successfully.', 'success');
-      } catch (error) {
-        showMessage('Invalid material code or short text', 'error');
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
   const handleAddEntry = () => {
-    setEntries([
-      ...entries,
-      {
-        MaterialCode: '',
-        MaterialShortText: '',
-        StockQuantity: '',
-        UOM: '',
-        PlantCode: ''
-      }
-    ]);
+    setEntries([...entries, { MaterialCode: '', MaterialShortText: '', StockQuantity: '', UOM: '', PlantCode: '' }]);
     showMessage('Entry added successfully.', 'success');
   };
 
@@ -77,37 +36,38 @@ const Form = () => {
     showMessage('Entry deleted successfully.', 'error');
   };
 
-  const validateEntries = () => {
-    let allEmpty = true;
-    for (let entry of entries) {
-      if (!entry.MaterialCode || !entry.MaterialShortText || !entry.StockQuantity || !entry.UOM || !entry.PlantCode) {
-        return false;
-      }
-      if (entry.MaterialCode || entry.MaterialShortText || entry.StockQuantity || entry.UOM || entry.PlantCode) {
-        allEmpty = false;
-      }
-    }
-    return !allEmpty;
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateEntries()) {
-      // Handle form submission
+    if (entries.some(entry => Object.values(entry).some(value => value === ''))) {
+      showMessage('Please fill in all required fields.', 'error');
+    } else {
       console.log('Submitted Entries:', entries);
       showMessage('Form submitted successfully.', 'success');
-    } else {
-      showMessage('Please fill out all fields in each entry.', 'error');
     }
   };
 
-  const showMessage = (msg, type) => {
-    setMessage(msg);
-    setMessageType(type);
-    setTimeout(() => {
-      setMessage('');
-      setMessageType('');
-    }, 3000);
+  const fetchMaterialData = async (index, query) => {
+    try {
+      const response = await axios.get(`http://localhost:7001/Request`, { params: query });
+      if (response.data.length > 0) {
+        const material = response.data[0];
+        const newEntries = [...entries];
+        newEntries[index] = {
+          MaterialCode: material.MaterialCode,
+          MaterialShortText: material.MaterialShortText,
+          StockQuantity: material.StockQuantity,
+          UOM: material.UOM,
+          PlantCode: material.PlantCode
+        };
+        setEntries(newEntries);
+        showMessage('Material data fetched successfully.', 'success');
+      } else {
+        showMessage('No material data found.', 'error');
+      }
+    } catch (error) {
+      console.error('Error fetching material data:', error);
+      showMessage('Error fetching material data.', 'error');
+    }
   };
 
   return (
@@ -137,7 +97,8 @@ const Form = () => {
                     className='form-control'
                     value={entry.MaterialCode}
                     onChange={(e) => handleInputChange(index, e)}
-                    onBlur={(e) => handleInputBlur(index, e)}
+                    onBlur={() => fetchMaterialData(index, { code: entry.MaterialCode })}
+                    required
                   />
                 </td>
                 <td>
@@ -148,17 +109,19 @@ const Form = () => {
                     className='form-control'
                     value={entry.MaterialShortText}
                     onChange={(e) => handleInputChange(index, e)}
-                    onBlur={(e) => handleInputBlur(index, e)}
+                    onBlur={() => fetchMaterialData(index, { text: entry.MaterialShortText })}
+                    required
                   />
                 </td>
                 <td>
                   <input
                     name='StockQuantity'
-                    type='number'
+                    type='text'
                     placeholder='Enter Quantity'
                     className='form-control'
                     value={entry.StockQuantity}
                     onChange={(e) => handleInputChange(index, e)}
+                    required
                   />
                 </td>
                 <td>
@@ -167,7 +130,7 @@ const Form = () => {
                     className='form-control'
                     value={entry.UOM}
                     onChange={(e) => handleInputChange(index, e)}
-                    onBlur={(e) => handleInputBlur(index, e)}
+                    required
                   >
                     <option value=''>Select UOM</option>
                     <option value='kg'>kg</option>
@@ -179,11 +142,12 @@ const Form = () => {
                 <td>
                   <input
                     name='PlantCode'
-                    type='number'
+                    type='text'
                     placeholder='Enter Plant Code'
                     className='form-control'
                     value={entry.PlantCode}
                     onChange={(e) => handleInputChange(index, e)}
+                    required
                   />
                 </td>
                 <td>
