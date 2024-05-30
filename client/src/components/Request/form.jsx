@@ -21,7 +21,7 @@ const Form = () => {
   const handleInputChange = (index, e) => {
     const { name, value } = e.target;
     const newEntries = [...entries];
-    newEntries[index][name] = value;
+    newEntries[index][name] = value || ''; // Ensure the value is not undefined
     setEntries(newEntries);
   };
 
@@ -36,14 +36,21 @@ const Form = () => {
     showMessage('Entry deleted successfully.', 'error');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (entries.some(entry => Object.values(entry).some(value => value === ''))) {
-      showMessage('Please fill in all required fields.', 'error');
-    } else {
-      console.log('Submitted Entries:', entries);
-      showMessage('Form submitted successfully.', 'success');
+    for (const entry of entries) {
+      if (Object.values(entry).some(value => value === '')) {
+        showMessage('Please fill in all required fields.', 'error');
+        return;
+      }
+      const isStockValid = await checkStockAvailability(entry.MaterialCode, entry.StockQuantity);
+      if (!isStockValid) {
+        showMessage(`Requested stock quantity for material code ${entry.MaterialCode} is more than available stock.`, 'error');
+        return;
+      }
     }
+    console.log('Submitted Entries:', entries);
+    showMessage('Form submitted successfully.', 'success');
   };
 
   const fetchMaterialData = async (index, query) => {
@@ -67,6 +74,17 @@ const Form = () => {
     } catch (error) {
       console.error('Error fetching material data:', error);
       showMessage('Error fetching material data.', 'error');
+    }
+  };
+
+  const checkStockAvailability = async (materialCode, requestedQuantity) => {
+    try {
+      const response = await axios.get(`http://localhost:7001/CompareStock`, { params: { materialCode, requestedQuantity } });
+      return response.data.isAvailable;
+    } catch (error) {
+      console.error('Error checking stock availability:', error);
+      showMessage('Error checking stock availability.', 'error');
+      return false;
     }
   };
 
@@ -95,7 +113,7 @@ const Form = () => {
                     type='text'
                     placeholder='Enter Material Code'
                     className='form-control'
-                    value={entry.MaterialCode}
+                    value={entry.MaterialCode || ''} // Ensure value is always defined
                     onChange={(e) => handleInputChange(index, e)}
                     onBlur={() => fetchMaterialData(index, { code: entry.MaterialCode })}
                     required
@@ -107,7 +125,7 @@ const Form = () => {
                     type='text'
                     placeholder='Enter Material Short Text'
                     className='form-control'
-                    value={entry.MaterialShortText}
+                    value={entry.MaterialShortText || ''} // Ensure value is always defined
                     onChange={(e) => handleInputChange(index, e)}
                     onBlur={() => fetchMaterialData(index, { text: entry.MaterialShortText })}
                     required
@@ -116,10 +134,10 @@ const Form = () => {
                 <td>
                   <input
                     name='StockQuantity'
-                    type='text'
+                    type='number'
                     placeholder='Enter Quantity'
                     className='form-control'
-                    value={entry.StockQuantity}
+                    value={entry.StockQuantity || ''} // Ensure value is always defined
                     onChange={(e) => handleInputChange(index, e)}
                     required
                   />
@@ -130,7 +148,7 @@ const Form = () => {
                     type='text'
                     placeholder='Enter UOM'
                     className='form-control'
-                    value={entry.UOM}
+                    value={entry.UOM || ''} // Ensure value is always defined
                     readOnly={!!entry.UOM}
                     onChange={(e) => handleInputChange(index, e)}
                     required
@@ -142,7 +160,7 @@ const Form = () => {
                     type='text'
                     placeholder='Enter Plant Code'
                     className='form-control'
-                    value={entry.PlantCode}
+                    value={entry.PlantCode || ''} // Ensure value is always defined
                     onChange={(e) => handleInputChange(index, e)}
                     required
                   />

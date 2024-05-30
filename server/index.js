@@ -93,6 +93,14 @@ app.get('/Overview', (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
 app.get('/Request', (req, res) => {
     const { code, text } = req.query;
     let query = 'SELECT MaterialCode,MaterialShortText,UOM FROM store WHERE';
@@ -111,6 +119,34 @@ app.get('/Request', (req, res) => {
       }
     });
   });
+
+
+
+
+
+  app.get('/CompareStock', (req, res) => {
+    const { materialCode, requestedQuantity } = req.query;
+  
+    if (!materialCode || !requestedQuantity) {
+      return res.status(400).json({ error: 'MaterialCode and requestedQuantity are required' });
+    }
+  
+    const query = 'SELECT StockQuantity FROM store WHERE MaterialCode = ?';
+  
+    db.query(query, [materialCode], (err, results) => {
+      if (err) {
+        res.status(500).send(err);
+      } else if (results.length === 0) {
+        res.status(404).json({ error: 'Material code not found' });
+      } else {
+        const availableStock = results[0].StockQuantity;
+        const isAvailable = parseInt(requestedQuantity, 10) <= availableStock;
+        res.json({ isAvailable, availableStock });
+      }
+    });
+  });
+
+
   
 
 
