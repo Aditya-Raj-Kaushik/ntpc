@@ -147,6 +147,20 @@ app.get('/Request', (req, res) => {
   });
 
 
+
+
+
+
+
+
+
+  app.post('/SubmitEntries', (req, res) => {
+    // Handle the form submission logic here
+    console.log(req.body); // Print the submitted entries
+    res.status(200).send({ message: 'Entries submitted successfully' });
+  });
+
+
   
 
 

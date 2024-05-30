@@ -49,8 +49,18 @@ const Form = () => {
         return;
       }
     }
-    console.log('Submitted Entries:', entries);
-    showMessage('Form submitted successfully.', 'success');
+
+    try {
+      // Assuming you need to send the entries to the server
+      await axios.post('http://localhost:7001/SubmitEntries', entries);
+
+      // Clear the entries array
+      setEntries([]);
+      showMessage('Form submitted successfully.', 'success');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      showMessage('Error submitting form.', 'error');
+    }
   };
 
   const fetchMaterialData = async (index, query) => {
