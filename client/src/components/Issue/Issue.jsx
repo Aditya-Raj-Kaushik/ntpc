@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import DashboardHeader from '../Dashboard/dashboardheader';
+import Action from './action';
+import History from './history';
 
 const Issue = () => {
   useEffect(() => {
@@ -13,7 +15,8 @@ const Issue = () => {
   return (
     <div>
       <DashboardHeader/>
-      <h1>Issue</h1>
+      <Action/>
+      <History/>
     </div>
   );
 };
