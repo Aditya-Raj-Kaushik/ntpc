@@ -9,3 +9,110 @@ body.dashboard-page {
     margin-bottom: 20px;
   }
   
+  .table {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .table__order-group {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+  }
+  
+  .table__order-group h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th, .table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .table__action-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .table__btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .table__btn--accept {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .table__btn--accept:hover {
+    background-color: #45a049;
+  }
+  
+  .table__btn--reject {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .table__btn--reject:hover {
+    background-color: #d32f2f;
+  }
+  
+  .table__bulk-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .table__btn--accept-all {
+    background-color: #008CBA;
+    color: white;
+  }
+  
+  .table__btn--accept-all:hover {
+    background-color: #007bb5;
+  }
+  
+  .table__btn--reject-all {
+    background-color: #ff9800;
+    color: white;
+  }
+  
+  .table__btn--reject-all:hover {
+    background-color: #fb8c00;
+  }
+  
+  .table__message {
+    color: green;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .table__no-requests {
+    color: red;
+    font-weight: bold;
+  }
+  
+  .table__header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .table__header h1 {
+    font-size: 2em;
+    padding: 20px;
+    margin: 0;
+  }
+  
