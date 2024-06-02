@@ -154,11 +154,77 @@ app.get('/Request', (req, res) => {
 
 
 
-  app.post('/SubmitEntries', (req, res) => {
-    // Handle the form submission logic here
-    console.log(req.body); // Print the submitted entries
-    res.status(200).send({ message: 'Entries submitted successfully' });
-  });
+
+
+
+
+  let sequenceNumber = 0;
+
+const generateRequestID = () => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
+    const orderNumber = String(sequenceNumber).padStart(6, '0'); // Sequence number with leading zeros
+    sequenceNumber = (sequenceNumber + 1) % 1000000; // Increment sequence number and reset after 999999
+    return `${month}${year}${orderNumber}`;
+};
+
+app.post('/SubmitEntries', (req, res) => {
+    const materials = req.body;
+    
+    if (!materials || !Array.isArray(materials) || materials.length === 0) {
+        return res.status(400).send({ message: 'Materials are required and should be an array' });
+    }
+
+    // Group materials by 'id'
+    const groupedMaterials = materials.reduce((acc, material) => {
+        if (!acc[material.id]) {
+            acc[material.id] = [];
+        }
+        acc[material.id].push(material);
+        return acc;
+    }, {});
+
+    // Prepare queries for each group
+    const queries = [];
+    const requestIDMap = {};
+
+    for (const [id, materials] of Object.entries(groupedMaterials)) {
+        const requestID = generateRequestID();
+        requestIDMap[id] = requestID;
+
+        const values = materials.map(material => [
+            requestID,
+            material.MaterialCode,
+            material.MaterialShortText,
+            material.StockQuantity,
+            material.UOM,
+            material.PlantCode,
+            'inprogress'
+        ]);
+
+        queries.push({ query: 'INSERT INTO request_table (RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status) VALUES ?', values });
+    }
+
+    // Execute all queries
+    let queriesCompleted = 0;
+    for (const { query, values } of queries) {
+        db.query(query, [values], (error, results) => {
+            queriesCompleted++;
+            if (error) {
+                console.error('Failed to insert data:', error);
+                if (queriesCompleted === queries.length) {
+                    return res.status(500).send({ message: 'Failed to submit entries' });
+                }
+            } else {
+                if (queriesCompleted === queries.length) {
+                    console.log('Data inserted successfully');
+                    res.status(200).send({ message: 'Entries submitted successfully', requestIDMap });
+                }
+            }
+        });
+    }
+});
 
 
   
