@@ -10,19 +10,20 @@ body.dashboard-page {
 .table {
   padding: 20px;
   font-family: Arial, sans-serif;
+  margin-top: 20px;  /* This moves the table down */
 }
 
 .table__order-group {
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  padding: 12px;
+  padding: 15px;
   background-color: #f9f9f9;
 }
 
 .table__order-group h2 {
-  font-size: 1.6em;
-  margin-bottom: 12px;
+  font-size: 1.5em;
+  margin-bottom: 10px;
   color: #333;
 }
 
@@ -33,7 +34,6 @@ body.dashboard-page {
 
 .table th, .table td {
   padding: 10px;
-  font-size: 1em;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
@@ -44,17 +44,11 @@ body.dashboard-page {
 }
 
 .table__btn {
-  padding: 6px 12px;
-  font-size: 1em;
+  padding: 8px 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-right: 10px; /* Add spacing between buttons */
-}
-
-.table__btn:last-child {
-  margin-right: 0; /* Remove right margin for the last button */
 }
 
 .table__btn--accept {
@@ -75,10 +69,21 @@ body.dashboard-page {
   background-color: #d32f2f;
 }
 
+.table__btn--modify {
+  background-color: white;
+  color: black;
+  border: 1px solid black;
+}
+
+.table__btn--modify:hover {
+  background-color: black;
+  color: white;
+}
+
 .table__bulk-actions {
-  margin-top: 15px;
+  margin-top: 20px;
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
 }
 
 .table__btn--accept-all {
@@ -103,13 +108,11 @@ body.dashboard-page {
   color: green;
   font-weight: bold;
   margin-bottom: 20px;
-  font-size: 1em;
 }
 
 .table__no-requests {
   color: red;
   font-weight: bold;
-  font-size: 1em;
 }
 
 .table__header {

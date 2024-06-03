@@ -227,9 +227,6 @@ app.post('/SubmitEntries', (req, res) => {
 });
 
 
-
-
-// Get requests
 app.get('/issue', (req, res) => {
   const query = 'SELECT RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status FROM request';
   db.query(query, (error, results) => {
@@ -241,7 +238,6 @@ app.get('/issue', (req, res) => {
   });
 });
 
-// Accept request
 app.post('/issue/:id/accept', (req, res) => {
   const id = req.params.id;
   const query = 'UPDATE request SET Status = "Accepted" WHERE RequestID = ?';
@@ -254,7 +250,6 @@ app.post('/issue/:id/accept', (req, res) => {
   });
 });
 
-// Reject request
 app.post('/issue/:id/reject', (req, res) => {
   const id = req.params.id;
   const query = 'DELETE FROM request WHERE RequestID = ?';
@@ -266,6 +261,20 @@ app.post('/issue/:id/reject', (req, res) => {
     res.json({ message: `Request ID ${id} has been rejected and removed.` });
   });
 });
+
+app.post('/issue/:id/modify', (req, res) => {
+  const id = req.params.id;
+  const { materialCode, newQuantity } = req.body;
+  const query = 'UPDATE request SET StockQuantity = ?, Status = IF(StockQuantity < ?, "Reduced&Accepted", "Increased&Accepted") WHERE RequestID = ? AND MaterialCode = ?';
+  db.query(query, [newQuantity, newQuantity, id, materialCode], (error, result) => {
+    if (error) {
+      console.error('Error modifying request:', error);
+      return res.status(500).json({ message: 'Failed to modify request', error });
+    }
+    res.json({ message: `Request ID ${id} and Material Code ${materialCode} has been modified to quantity ${newQuantity}.` });
+  });
+});
+
 
 
 

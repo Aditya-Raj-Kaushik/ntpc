@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './issue.css';
 
 const Action = () => {
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState({});
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -16,7 +16,12 @@ const Action = () => {
         throw new Error('Failed to fetch requests');
       }
       const data = await response.json();
-      setRequests(data);
+      const groupedRequests = data.reduce((acc, request) => {
+        acc[request.RequestID] = acc[request.RequestID] || [];
+        acc[request.RequestID].push(request);
+        return acc;
+      }, {});
+      setRequests(groupedRequests);
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     }
@@ -31,7 +36,8 @@ const Action = () => {
       if (!response.ok) {
         throw new Error('Failed to accept request');
       }
-      setMessage(`Request ID ${id} has been accepted.`);
+      const result = await response.json();
+      setMessage(result.message);
       fetchRequests();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
@@ -47,57 +53,60 @@ const Action = () => {
       if (!response.ok) {
         throw new Error('Failed to reject request');
       }
-      setMessage(`Request ID ${id} has been rejected and removed.`);
+      const result = await response.json();
+      setMessage(result.message);
       fetchRequests();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     }
   };
 
-  const handleAcceptAll = async (requestID) => {
+  const handleModify = async (requestId, materialCode) => {
+    const newQuantity = prompt('Enter the new quantity:');
+    if (newQuantity) {
+      try {
+        const response = await fetch(`http://localhost:7001/issue/${requestId}/modify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ materialCode, newQuantity })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to modify request');
+        }
+        const result = await response.json();
+        setMessage(result.message);
+        fetchRequests();
+      } catch (error) {
+        setMessage(`Error: ${error.message}`);
+      }
+    }
+  };
+
+  const handleAcceptAll = async (ids) => {
     try {
-      await Promise.all(
-        requests
-          .filter(request => request.RequestID === requestID)
-          .map(request =>
-            fetch(`http://localhost:7001/issue/${request.RequestID}/accept`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-            })
-          )
-      );
-      setMessage(`All requests for Request ID ${requestID} have been accepted.`);
+      await Promise.all(ids.map(id => fetch(`http://localhost:7001/issue/${id}/accept`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })));
+      setMessage('All selected requests have been accepted.');
       fetchRequests();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     }
   };
 
-  const handleRejectAll = async (requestID) => {
+  const handleRejectAll = async (ids) => {
     try {
-      await Promise.all(
-        requests
-          .filter(request => request.RequestID === requestID)
-          .map(request =>
-            fetch(`http://localhost:7001/issue/${request.RequestID}/reject`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-            })
-          )
-      );
-      setMessage(`All requests for Request ID ${requestID} have been rejected and removed.`);
+      await Promise.all(ids.map(id => fetch(`http://localhost:7001/issue/${id}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })));
+      setMessage('All selected requests have been rejected and removed.');
       fetchRequests();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     }
   };
-
-  // Group requests by RequestID
-  const groupedRequests = requests.reduce((acc, request) => {
-    acc[request.RequestID] = acc[request.RequestID] || [];
-    acc[request.RequestID].push(request);
-    return acc;
-  }, {});
 
   return (
     <div className="table">
@@ -105,11 +114,11 @@ const Action = () => {
         <h1>Order Requests</h1>
       </div>
       {message && <p className="table__message">{message}</p>}
-      {Object.keys(groupedRequests).length > 0 ? (
+      {Object.keys(requests).length > 0 ? (
         <>
-          {Object.keys(groupedRequests).map(requestID => (
-            <div key={requestID} className="table__order-group">
-              <h2>Request ID: {requestID}</h2>
+          {Object.entries(requests).map(([requestId, items]) => (
+            <div key={requestId} className="table__order-group">
+              <h2>Request ID: {requestId}</h2>
               <table>
                 <thead>
                   <tr>
@@ -123,25 +132,28 @@ const Action = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {groupedRequests[requestID].map(request => (
-                    <tr key={request.MaterialCode}>
-                      <td>{request.MaterialCode}</td>
-                      <td>{request.MaterialShortText}</td>
-                      <td>{request.StockQuantity}</td>
-                      <td>{request.UOM}</td>
-                      <td>{request.PlantCode}</td>
-                      <td>{request.Status}</td>
+                  {items.map(item => (
+                    <tr key={item.MaterialCode}>
+                      <td>{item.MaterialCode}</td>
+                      <td>{item.MaterialShortText}</td>
+                      <td>{item.StockQuantity}</td>
+                      <td>{item.UOM}</td>
+                      <td>{item.PlantCode}</td>
+                      <td>{item.Status}</td>
                       <td>
-                        <button className="table__btn table__btn--accept" onClick={() => handleAccept(request.RequestID)}>Accept</button>
-                        <button className="table__btn table__btn--reject" onClick={() => handleReject(request.RequestID)}>Reject</button>
+                        <div className="table__action-buttons">
+                          <button className="table__btn table__btn--accept" onClick={() => handleAccept(item.RequestID)}>Accept</button>
+                          <button className="table__btn table__btn--reject" onClick={() => handleReject(item.RequestID)}>Reject</button>
+                          <button className="table__btn table__btn--modify" onClick={() => handleModify(item.RequestID, item.MaterialCode)}>Modify</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               <div className="table__bulk-actions">
-                <button className="table__btn table__btn--accept-all" onClick={() => handleAcceptAll(requestID)}>Accept All</button>
-                <button className="table__btn table__btn--reject-all" onClick={() => handleRejectAll(requestID)}>Reject All</button>
+                <button className="table__btn table__btn--accept-all" onClick={() => handleAcceptAll(items.map(item => item.RequestID))}>Accept All</button>
+                <button className="table__btn table__btn--reject-all" onClick={() => handleRejectAll(items.map(item => item.RequestID))}>Reject All</button>
               </div>
             </div>
           ))}
