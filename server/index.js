@@ -203,7 +203,7 @@ app.post('/SubmitEntries', (req, res) => {
             'inprogress'
         ]);
 
-        queries.push({ query: 'INSERT INTO request_table (RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status) VALUES ?', values });
+        queries.push({ query: 'INSERT INTO request (RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status) VALUES ?', values });
     }
 
     // Execute all queries
@@ -225,6 +225,49 @@ app.post('/SubmitEntries', (req, res) => {
         });
     }
 });
+
+
+
+
+// Get requests
+app.get('/issue', (req, res) => {
+  const query = 'SELECT RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status FROM request';
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error('Error fetching requests:', error);
+      return res.status(500).json({ message: 'Failed to fetch requests', error });
+    }
+    res.json(results);
+  });
+});
+
+// Accept request
+app.post('/issue/:id/accept', (req, res) => {
+  const id = req.params.id;
+  const query = 'UPDATE request SET Status = "Accepted" WHERE RequestID = ?';
+  db.query(query, [id], (error, result) => {
+    if (error) {
+      console.error('Error accepting request:', error);
+      return res.status(500).json({ message: 'Failed to accept request', error });
+    }
+    res.json({ message: `Request ID ${id} has been accepted.` });
+  });
+});
+
+// Reject request
+app.post('/issue/:id/reject', (req, res) => {
+  const id = req.params.id;
+  const query = 'DELETE FROM request WHERE RequestID = ?';
+  db.query(query, [id], (error, result) => {
+    if (error) {
+      console.error('Error rejecting request:', error);
+      return res.status(500).json({ message: 'Failed to reject request', error });
+    }
+    res.json({ message: `Request ID ${id} has been rejected and removed.` });
+  });
+});
+
+
 
 
   
