@@ -92,13 +92,23 @@ app.get('/Overview', (req, res) => {
 });
 
 
+let sequenceNumber = 0;
 
+const generateRequestID = () => {
+  const now = new Date();
+  
+  // Extract month and year
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = String(now.getFullYear()).slice(-2);
 
+  // Generate order number with leading zeros
+  const orderNumber = String(sequenceNumber).padStart(6, '0');
 
+  // Increment sequence number and reset after 999999
+  sequenceNumber = (sequenceNumber + 1) % 1000000;
 
-
-
-
+  return `${month}${year}${orderNumber}`;
+};
 
 
 app.get('/Request', (req, res) => {
@@ -150,25 +160,6 @@ app.get('/Request', (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-  let sequenceNumber = 0;
-
-const generateRequestID = () => {
-    const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
-    const orderNumber = String(sequenceNumber).padStart(6, '0'); // Sequence number with leading zeros
-    sequenceNumber = (sequenceNumber + 1) % 1000000; // Increment sequence number and reset after 999999
-    return `${month}${year}${orderNumber}`;
-};
-
 app.post('/SubmitEntries', (req, res) => {
     const materials = req.body;
     
@@ -200,10 +191,11 @@ app.post('/SubmitEntries', (req, res) => {
             material.StockQuantity,
             material.UOM,
             material.PlantCode,
-            'inprogress'
+            'inprogress',
+            'No'
         ]);
 
-        queries.push({ query: 'INSERT INTO request (RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status) VALUES ?', values });
+        queries.push({ query: 'INSERT INTO request (RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status, Attempt) VALUES ?', values });
     }
 
     // Execute all queries
@@ -228,7 +220,7 @@ app.post('/SubmitEntries', (req, res) => {
 
 
 app.get('/issue', (req, res) => {
-  const query = 'SELECT RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status FROM request';
+  const query = 'SELECT RequestID, MaterialCode, MaterialShortText, StockQuantity, UOM, PlantCode, Status FROM request WHERE Attempt = "No"';
   db.query(query, (error, results) => {
     if (error) {
       console.error('Error fetching requests:', error);
@@ -238,48 +230,233 @@ app.get('/issue', (req, res) => {
   });
 });
 
+
 app.post('/issue/:id/accept', (req, res) => {
   const id = req.params.id;
-  const query = 'UPDATE request SET Status = "Accepted" WHERE RequestID = ?';
-  db.query(query, [id], (error, result) => {
+  const materialCodes = req.body.materialCodes; // Expecting an array of MaterialCodes
+
+  // Query to update Status and set AllotedQT equal to StockQuantity for specific MaterialCodes
+  const updateQuery = `
+    UPDATE request
+    SET Status = 'Accepted', AllotedQT = StockQuantity
+    WHERE RequestID = ? AND MaterialCode IN (?)
+  `;
+  const selectQuery = 'SELECT MaterialCode, Status, AllotedQT FROM request WHERE RequestID = ?';
+
+  db.query(updateQuery, [id, materialCodes], (error, result) => {
     if (error) {
-      console.error('Error accepting request:', error);
-      return res.status(500).json({ message: 'Failed to accept request', error });
+      console.error('Error accepting materials:', error);
+      return res.status(500).json({ message: 'Failed to accept materials', error });
     }
-    res.json({ message: `Request ID ${id} has been accepted.` });
+
+    db.query(selectQuery, [id], (error, results) => {
+      if (error) {
+        console.error('Error fetching updated materials:', error);
+        return res.status(500).json({ message: 'Failed to fetch updated materials', error });
+      }
+      res.json({ message: `Selected materials for Request ID ${id} have been accepted.`, materials: results });
+    });
   });
 });
 
+
+
 app.post('/issue/:id/reject', (req, res) => {
   const id = req.params.id;
-  const query = 'DELETE FROM request WHERE RequestID = ?';
-  db.query(query, [id], (error, result) => {
+  const materialCodes = req.body.materialCodes; // Expecting an array of MaterialCodes
+  const updateQuery = 'UPDATE request SET Status = "Rejected" WHERE RequestID = ? AND MaterialCode IN (?)';
+  const selectQuery = 'SELECT MaterialCode, Status FROM request WHERE RequestID = ?';
+
+  db.query(updateQuery, [id, materialCodes], (error, result) => {
     if (error) {
-      console.error('Error rejecting request:', error);
-      return res.status(500).json({ message: 'Failed to reject request', error });
+      console.error('Error rejecting materials:', error);
+      return res.status(500).json({ message: 'Failed to reject materials', error });
     }
-    res.json({ message: `Request ID ${id} has been rejected and removed.` });
+
+    db.query(selectQuery, [id], (error, results) => {
+      if (error) {
+        console.error('Error fetching updated materials:', error);
+        return res.status(500).json({ message: 'Failed to fetch updated materials', error });
+      }
+      res.json({ message: `Selected materials for Request ID ${id} have been rejected.`, materials: results });
+    });
   });
 });
+
+
+app.post('/issue/:id/accept-all', (req, res) => {
+  const id = req.params.id;
+
+  // Query to update Status and set AllotedQT equal to StockQuantity for all MaterialCodes
+  const updateQuery = `
+    UPDATE request
+    SET Status = 'Accepted', AllotedQT = StockQuantity
+    WHERE RequestID = ?
+  `;
+  const selectQuery = 'SELECT MaterialCode, Status, AllotedQT FROM request WHERE RequestID = ?';
+
+  db.query(updateQuery, [id], (error, result) => {
+    if (error) {
+      console.error('Error accepting all materials:', error);
+      return res.status(500).json({ message: 'Failed to accept all materials', error });
+    }
+
+    db.query(selectQuery, [id], (error, results) => {
+      if (error) {
+        console.error('Error fetching updated materials:', error);
+        return res.status(500).json({ message: 'Failed to fetch updated materials', error });
+      }
+      res.json({ message: `All materials for Request ID ${id} have been accepted.`, materials: results });
+    });
+  });
+});
+
+
+
+app.post('/issue/:id/reject-all', (req, res) => {
+  const id = req.params.id;
+  const updateQuery = 'UPDATE request SET Status = "Rejected" WHERE RequestID = ?';
+  const selectQuery = 'SELECT MaterialCode, Status FROM request WHERE RequestID = ?';
+
+  db.query(updateQuery, [id], (error, result) => {
+    if (error) {
+      console.error('Error rejecting all materials:', error);
+      return res.status(500).json({ message: 'Failed to reject all materials', error });
+    }
+
+    db.query(selectQuery, [id], (error, results) => {
+      if (error) {
+        console.error('Error fetching updated materials:', error);
+        return res.status(500).json({ message: 'Failed to fetch updated materials', error });
+      }
+      res.json({ message: `All materials for Request ID ${id} have been rejected.`, materials: results });
+    });
+  });
+});
+
 
 app.post('/issue/:id/modify', (req, res) => {
   const id = req.params.id;
   const { materialCode, newQuantity } = req.body;
-  const query = 'UPDATE request SET StockQuantity = ?, Status = IF(StockQuantity < ?, "Reduced&Accepted", "Increased&Accepted") WHERE RequestID = ? AND MaterialCode = ?';
-  db.query(query, [newQuantity, newQuantity, id, materialCode], (error, result) => {
-    if (error) {
-      console.error('Error modifying request:', error);
-      return res.status(500).json({ message: 'Failed to modify request', error });
+
+  // Query to get the current StockQuantity
+  const getQuery = 'SELECT StockQuantity FROM request WHERE RequestID = ? AND MaterialCode = ?';
+
+  db.query(getQuery, [id, materialCode], (getError, getResult) => {
+    if (getError) {
+      console.error('Error fetching current stock quantity:', getError);
+      return res.status(500).json({ message: 'Failed to fetch current stock quantity', error: getError });
     }
-    res.json({ message: `Request ID ${id} and Material Code ${materialCode} has been modified to quantity ${newQuantity}.` });
+
+    if (getResult.length === 0) {
+      return res.status(404).json({ message: 'Request ID or Material Code not found' });
+    }
+
+    const currentQuantity = getResult[0].StockQuantity;
+    const status = newQuantity < currentQuantity ? 'Reduced&Accepted' : 'Increased&Accepted';
+
+    // Query to update AllotedQT and Status
+    const updateQuery = 'UPDATE request SET AllotedQT = ?, Status = ? WHERE RequestID = ? AND MaterialCode = ?';
+
+    db.query(updateQuery, [newQuantity, status, id, materialCode], (updateError, updateResult) => {
+      if (updateError) {
+        console.error('Error modifying request:', updateError);
+        return res.status(500).json({ message: 'Failed to modify request', error: updateError });
+      }
+      res.json({ message: `Request ID ${id} and Material Code ${materialCode} has been modified to quantity ${newQuantity}.`, status });
+    });
+  });
+});
+
+app.post('/issue/:id/submit', (req, res) => {
+  const id = req.params.id;
+  const { transactionData } = req.body;
+
+  if (!transactionData || !Array.isArray(transactionData)) {
+    return res.status(400).json({ message: 'Invalid transaction data' });
+  }
+
+  db.beginTransaction((err) => {
+    if (err) {
+      console.error('Error starting transaction:', err);
+      return res.status(500).json({ message: 'Failed to start transaction', error: err });
+    }
+
+    const selectQuery = 'SELECT RequestID, MaterialCode, MaterialShortText, StockQuantity, AllotedQT, UOM, PlantCode, Status, Attempt FROM request WHERE RequestID = ?';
+    db.query(selectQuery, [id], (selectError, selectResults) => {
+      if (selectError) {
+        return db.rollback(() => {
+          console.error('Error selecting from request table:', selectError);
+          return res.status(500).json({ message: 'Failed to select from request table', error: selectError });
+        });
+      }
+
+      if (selectResults.length === 0) {
+        return db.rollback(() => {
+          console.error('No matching request found');
+          return res.status(404).json({ message: 'No matching request found' });
+        });
+      }
+
+      const requestData = selectResults[0];
+      const transactionValues = transactionData.map(data => [
+        requestData.RequestID,
+        requestData.MaterialCode,
+        requestData.MaterialShortText,
+        requestData.StockQuantity,
+        requestData.AllotedQT,
+        requestData.UOM,
+        requestData.PlantCode,
+        requestData.Status,
+        requestData.Attempt
+      ]);
+
+      const insertQuery = 'INSERT INTO transaction (RequestID, MaterialCode, MaterialShortText, StockQuantity, AllotedQT, UOM, PlantCode, Status, Attempt) VALUES ?';
+      db.query(insertQuery, [transactionValues], (insertError, insertResult) => {
+        if (insertError) {
+          return db.rollback(() => {
+            console.error('Error inserting into transaction table:', insertError);
+            return res.status(500).json({ message: 'Failed to insert into transaction table', error: insertError });
+          });
+        }
+
+        const updateQuery = 'UPDATE request SET Attempt = "Yes" WHERE RequestID = ?';
+        db.query(updateQuery, [id], (updateError, updateResult) => {
+          if (updateError) {
+            return db.rollback(() => {
+              console.error('Error updating request attempt:', updateError);
+              return res.status(500).json({ message: 'Failed to update request attempt', error: updateError });
+            });
+          }
+
+          const quantityToSubtract = requestData.AllotedQT === 0 ? requestData.StockQuantity : requestData.AllotedQT;
+          const subtractStockQuery = 'UPDATE store SET StockQuantity = StockQuantity - ? WHERE MaterialCode = ? AND PlantCode = ?';
+          db.query(subtractStockQuery, [quantityToSubtract, requestData.MaterialCode, requestData.PlantCode], (subtractError, subtractResult) => {
+            if (subtractError) {
+              return db.rollback(() => {
+                console.error('Error updating store stock quantity:', subtractError);
+                return res.status(500).json({ message: 'Failed to update store stock quantity', error: subtractError });
+              });
+            }
+
+            db.commit((commitError) => {
+              if (commitError) {
+                return db.rollback(() => {
+                  console.error('Error committing transaction:', commitError);
+                  return res.status(500).json({ message: 'Failed to commit transaction', error: commitError });
+                });
+              }
+
+              res.json({ message: `Request ID ${id} has been submitted, Attempt set to Yes, and store stock quantity updated.` });
+            });
+          });
+        });
+      });
+    });
   });
 });
 
 
-
-
-
-  
 
 
 const PORT = process.env.PORT || 7001;  

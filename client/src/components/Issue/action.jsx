@@ -4,6 +4,7 @@ import './issue.css';
 const Action = () => {
   const [requests, setRequests] = useState({});
   const [message, setMessage] = useState('');
+  const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
     fetchRequests();
@@ -27,11 +28,12 @@ const Action = () => {
     }
   };
 
-  const handleAccept = async (id) => {
+  const handleAccept = async (id, materialCodes) => {
     try {
       const response = await fetch(`http://localhost:7001/issue/${id}/accept`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ materialCodes })
       });
       if (!response.ok) {
         throw new Error('Failed to accept request');
@@ -44,11 +46,12 @@ const Action = () => {
     }
   };
 
-  const handleReject = async (id) => {
+  const handleReject = async (id, materialCodes) => {
     try {
       const response = await fetch(`http://localhost:7001/issue/${id}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ materialCodes })
       });
       if (!response.ok) {
         throw new Error('Failed to reject request');
@@ -82,26 +85,61 @@ const Action = () => {
     }
   };
 
-  const handleAcceptAll = async (ids) => {
+  const handleQuantityChange = (requestId, materialCode, value) => {
+    setQuantities({
+      ...quantities,
+      [`${requestId}-${materialCode}`]: value
+    });
+  };
+
+  const handleSubmit = async (id, transactionData) => {
     try {
-      await Promise.all(ids.map(id => fetch(`http://localhost:7001/issue/${id}/accept`, {
+      const response = await fetch(`http://localhost:7001/issue/${id}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-      })));
-      setMessage('All selected requests have been accepted.');
+        body: JSON.stringify({ transactionData })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit request');
+      }
+
+      const result = await response.json();
+      setMessage(result.message);
       fetchRequests();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     }
   };
 
-  const handleRejectAll = async (ids) => {
+  const handleAcceptAll = async (id) => {
     try {
-      await Promise.all(ids.map(id => fetch(`http://localhost:7001/issue/${id}/reject`, {
+      const response = await fetch(`http://localhost:7001/issue/${id}/accept-all`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-      })));
-      setMessage('All selected requests have been rejected and removed.');
+      });
+      if (!response.ok) {
+        throw new Error('Failed to accept all materials');
+      }
+      const result = await response.json();
+      setMessage(result.message);
+      fetchRequests();
+    } catch (error) {
+      setMessage(`Error: ${error.message}`);
+    }
+  };
+
+  const handleRejectAll = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:7001/issue/${id}/reject-all`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to reject all materials');
+      }
+      const result = await response.json();
+      setMessage(result.message);
       fetchRequests();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
@@ -136,15 +174,21 @@ const Action = () => {
                     <tr key={item.MaterialCode}>
                       <td>{item.MaterialCode}</td>
                       <td>{item.MaterialShortText}</td>
-                      <td>{item.StockQuantity}</td>
+                      <td>
+                        <input
+                          type="number"
+                          value={quantities[`${requestId}-${item.MaterialCode}`] || item.StockQuantity}
+                          onChange={(e) => handleQuantityChange(requestId, item.MaterialCode, e.target.value)}
+                        />
+                      </td>
                       <td>{item.UOM}</td>
                       <td>{item.PlantCode}</td>
                       <td>{item.Status}</td>
                       <td>
                         <div className="table__action-buttons">
-                          <button className="table__btn table__btn--accept" onClick={() => handleAccept(item.RequestID)}>Accept</button>
-                          <button className="table__btn table__btn--reject" onClick={() => handleReject(item.RequestID)}>Reject</button>
-                          <button className="table__btn table__btn--modify" onClick={() => handleModify(item.RequestID, item.MaterialCode)}>Modify</button>
+                          <button className="table__btn table__btn--accept" onClick={() => handleAccept(requestId, [item.MaterialCode])}>Accept</button>
+                          <button className="table__btn table__btn--reject" onClick={() => handleReject(requestId, [item.MaterialCode])}>Reject</button>
+                          <button className="table__btn table__btn--modify" onClick={() => handleModify(requestId, item.MaterialCode)}>Modify</button>
                         </div>
                       </td>
                     </tr>
@@ -152,8 +196,15 @@ const Action = () => {
                 </tbody>
               </table>
               <div className="table__bulk-actions">
-                <button className="table__btn table__btn--accept-all" onClick={() => handleAcceptAll(items.map(item => item.RequestID))}>Accept All</button>
-                <button className="table__btn table__btn--reject-all" onClick={() => handleRejectAll(items.map(item => item.RequestID))}>Reject All</button>
+                <button className="table__btn table__btn--submit" onClick={() => handleSubmit(requestId, items.map(item => ({
+                  MaterialCode: item.MaterialCode,
+                  Quantity: quantities[`${requestId}-${item.MaterialCode}`] || item.StockQuantity,
+                  UOM: item.UOM,
+                  PlantCode: item.PlantCode,
+                  Status: item.Status
+                })))}>Submit</button>
+                <button className="table__btn table__btn--accept-all" onClick={() => handleAcceptAll(requestId)}>Accept All</button>
+                <button className="table__btn table__btn--reject-all" onClick={() => handleRejectAll(requestId)}>Reject All</button>
               </div>
             </div>
           ))}
