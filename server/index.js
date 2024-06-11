@@ -59,16 +59,6 @@ app.post('/login', (req, res) => {
     }
 });
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
-// Handle registration
->>>>>>> parent of 3914a54 (okay)
 app.post('/register', (req, res) => {
   try {
       const { Email, Password, Role } = req.body;
