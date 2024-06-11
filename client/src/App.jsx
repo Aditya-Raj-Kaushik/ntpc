@@ -1,4 +1,3 @@
-import React from 'react';
 import Dashboard from './components/Dashboard/dashboard';
 import Login from './components/Login/login';
 import Register from './components/Register/register';
@@ -7,9 +6,10 @@ import Request from './components/Request/request';
 import Receipt from './components/Receipt/receipt';
 import Issue from './components/Issue/Issue';
 
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { AuthProvider } from './authContext';
-import ProtectedRoute from './ProtectedRoute';
+import {
+  createBrowserRouter,
+  RouterProvider
+} from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
@@ -22,51 +22,28 @@ const router = createBrowserRouter([
   },
   {
     path: '/dashboard',
-    element: (
-      <ProtectedRoute allowedRoles={['admin', 'user']}>
-        <Dashboard />
-      </ProtectedRoute>
-    ) 
+    element: <Dashboard /> 
   },
   {
     path: '/overview',
-    element: (
-      <ProtectedRoute allowedRoles={['admin', 'user']}>
-        <Overview />
-      </ProtectedRoute>
-    ) 
+    element: <Overview /> 
   },
   {
     path: '/request',
-    element: (
-      <ProtectedRoute allowedRoles={['user']}>
-        <Request />
-      </ProtectedRoute>
-    ) 
+    element: <Request /> 
   },
   {
     path: '/receipt',
-    element: (
-      <ProtectedRoute allowedRoles={['admin']}>
-        <Receipt />
-      </ProtectedRoute>
-    ) 
-  },
-  {
+    element: <Receipt /> 
+  },{
     path: '/issue',
-    element: (
-      <ProtectedRoute allowedRoles={['admin']}>
-        <Issue />
-      </ProtectedRoute>
-    ) 
+    element: <Issue /> 
   }
 ]);
 
 function App() {
   return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <RouterProvider router={router} />
   );
 }
 

@@ -59,6 +59,16 @@ app.post('/login', (req, res) => {
     }
 });
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+// Handle registration
+>>>>>>> parent of 3914a54 (okay)
 app.post('/register', (req, res) => {
   try {
       const { Email, Password, Role } = req.body;
@@ -472,18 +482,6 @@ app.post('/issue/:id/submit', (req, res) => {
   });
 });
 
-
-
-// Endpoint to fetch transactions
-app.get('/transactions', (req, res) => {
-  db.query('SELECT * FROM transaction', (error, results) => {
-    if (error) {
-      console.error('Database query failed:', error); // Log the error
-      return res.status(500).json({ error: 'Failed to fetch transactions' });
-    }
-    res.json(results);
-  });
-});
 
 
 
