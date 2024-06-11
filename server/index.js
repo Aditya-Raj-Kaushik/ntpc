@@ -1,6 +1,8 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 require('dotenv').config(); // Import dotenv for environment variables
 
 
@@ -27,22 +29,26 @@ const db = mysql.createConnection({
 
 
 
-
-
+const secret = 'your_jwt_secret';
 
 // Handle login
 app.post('/login', (req, res) => {
     try {
         const { Email, Password } = req.body;
-        const SQL = 'SELECT * FROM employee WHERE EmailID = ? AND Password = ?';
-        const values = [Email, Password];
-        db.query(SQL, values, (err, results) => {
+        const SQL = 'SELECT * FROM employee WHERE EmailID = ?';
+        db.query(SQL, [Email], (err, results) => {
             if (err) {
                 console.error(err);
                 return res.status(500).send({ success: false, error: 'Internal server error' });
             }
             if (results.length > 0) {
-                return res.status(200).send({ success: true, message: 'Login successful' });
+                const user = results[0];
+                if (bcrypt.compareSync(Password, user.Password)) {
+                    const token = jwt.sign({ id: user.ID, role: user.role }, secret, { expiresIn: '1h' });
+                    return res.status(200).send({ success: true, token, role: user.role });
+                } else {
+                    return res.status(401).send({ success: false, error: 'Invalid email or password' });
+                }
             } else {
                 return res.status(401).send({ success: false, error: 'Invalid email or password' });
             }
@@ -53,26 +59,41 @@ app.post('/login', (req, res) => {
     }
 });
 
-
-// Handle registration
 app.post('/register', (req, res) => {
-    try {
-        const { Email, Password } = req.body;
-        const SQL = 'INSERT INTO employee (EmailID, Password) VALUES (?, ?)';
-        const values = [Email, Password];
-        db.query(SQL, values, (err, results) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send({ error: 'Database error' });
-            } else {
-                console.log('User inserted successfully');
-                return res.status(201).send({ message: 'User added' });
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send({ error: 'Internal server error' });
-    }
+  try {
+      const { Email, Password, Role } = req.body;
+      
+      // Check if the email already exists
+      const checkEmailSQL = 'SELECT * FROM employee WHERE EmailID = ?';
+      db.query(checkEmailSQL, [Email], (err, results) => {
+          if (err) {
+              console.error(err);
+              return res.status(500).send({ error: 'Database error' });
+          }
+          
+          if (results.length > 0) {
+              // Email already exists
+              return res.status(400).send({ error: 'Email already exists' });
+          } else {
+              // Email does not exist, proceed with registration
+              const hashedPassword = bcrypt.hashSync(Password, 10);
+              const insertSQL = 'INSERT INTO employee (EmailID, Password, role) VALUES (?, ?, ?)';
+              const values = [Email, hashedPassword, Role];
+              db.query(insertSQL, values, (err, results) => {
+                  if (err) {
+                      console.error(err);
+                      return res.status(500).send({ error: 'Database error' });
+                  } else {
+                      console.log('User inserted successfully');
+                      return res.status(201).send({ message: 'User added' });
+                  }
+              });
+          }
+      });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).send({ error: 'Internal server error' });
+  }
 });
 
 
