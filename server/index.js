@@ -473,6 +473,18 @@ app.post('/issue/:id/submit', (req, res) => {
 });
 
 
+// Endpoint to fetch transactions
+app.get('/transactions', (req, res) => {
+  db.query('SELECT * FROM transaction', (error, results) => {
+    if (error) {
+      console.error('Database query failed:', error); // Log the error
+      return res.status(500).json({ error: 'Failed to fetch transactions' });
+    }
+    res.json(results);
+  });
+});
+
+
 
 
 const PORT = process.env.PORT || 7001;  
