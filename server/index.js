@@ -463,6 +463,16 @@ app.get('/transactions', (req, res) => {
   });
 });
 
+app.get('/fetch/material/:code', (req, res) => {
+  const { code } = req.params;
+  const material = storeData[code];
+  if (material) {
+    res.json(material);
+  } else {
+    res.status(404).json({ error: 'Material not found' });
+  }
+});
+
 
 
 
