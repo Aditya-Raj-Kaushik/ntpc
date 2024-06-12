@@ -485,6 +485,29 @@ app.get('/fetch', (req, res) => {
 
 
 
+app.get('/fetchVendor', (req, res) => {
+  const { vendorCode } = req.query;
+
+  if (!vendorCode) {
+    return res.status(400).send('Vendor code is required');
+  }
+
+  const query = `SELECT Vcode, Vendor, Location FROM vendor WHERE Vcode = ?`;
+  db.query(query, [vendorCode], (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send(err);
+    }
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).send('Vendor not found');
+    }
+  });
+});
+
+
+
 const PORT = process.env.PORT || 7001;  
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

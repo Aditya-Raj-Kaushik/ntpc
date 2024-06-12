@@ -24,6 +24,25 @@ const PurchaseOrderForm = () => {
       ...formData,
       [name]: value
     });
+
+    if (name === 'vendorCode' && value) {
+      fetchVendorData(value);
+    }
+  };
+
+  const fetchVendorData = async (vendorCode) => {
+    try {
+      const response = await axios.get('http://localhost:7001/fetchVendor', { params: { vendorCode } });
+      const vendorData = response.data;
+      setFormData((prevData) => ({
+        ...prevData,
+        vendor: vendorData.Vendor,
+        location: vendorData.Location
+      }));
+    } catch (error) {
+      console.error('Error fetching vendor data:', error);
+      alert('Error fetching vendor data.');
+    }
   };
 
   const handleMaterialChange = (index, e) => {
@@ -58,7 +77,6 @@ const PurchaseOrderForm = () => {
           quantity: newEntries[index].quantity // preserve existing quantity
         };
         setMaterials(newEntries);
-        alert('Material data fetched successfully.');
       } else {
         alert('No material data found.');
       }
@@ -93,15 +111,15 @@ const PurchaseOrderForm = () => {
         <div className="vendor-info">
           <label className="vendor-code">
             Vendor Code:
-            <input type="number" name="vendorCode" value={formData.vendorCode} onChange={handleFormChange} />
+            <input type="text" name="vendorCode" value={formData.vendorCode} onChange={handleFormChange} />
           </label>
           <label className="vendor">
             Vendor:
-            <input type="text" name="vendor" value={formData.vendor} onChange={handleFormChange} />
+            <input type="text" name="vendor" value={formData.vendor} readOnly />
           </label>
           <label className="location">
             Location:
-            <input type="text" name="location" value={formData.location} onChange={handleFormChange} />
+            <input type="text" name="location" value={formData.location} readOnly />
           </label>
         </div>
 
