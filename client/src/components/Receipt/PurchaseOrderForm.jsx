@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './receipt.css';
 
 const PurchaseOrderForm = () => {
@@ -44,10 +45,34 @@ const PurchaseOrderForm = () => {
     setMaterials(updatedMaterials);
   };
 
+  const fetchMaterialData = async (index, query) => {
+    try {
+      const response = await axios.get('http://localhost:7001/fetch', { params: query });
+      if (response.data.length > 0) {
+        const material = response.data[0];
+        const newEntries = [...materials];
+        newEntries[index] = {
+          materialCode: material.MaterialCode,
+          materialShortText: material.MaterialShortText,
+          uom: material.UOM,
+          quantity: newEntries[index].quantity // preserve existing quantity
+        };
+        setMaterials(newEntries);
+        alert('Material data fetched successfully.');
+      } else {
+        alert('No material data found.');
+      }
+    } catch (error) {
+      console.error('Error fetching material data:', error);
+      alert('Error fetching material data.');
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const fullFormData = { ...formData, materials };
     console.log(fullFormData);
+    // Here you can handle the form submission, e.g., send data to the server
   };
 
   return (
@@ -103,10 +128,15 @@ const PurchaseOrderForm = () => {
             <label className="material-code">
               Material Code:
               <input
-                type="number"
+                type="text"
                 name="materialCode"
                 value={material.materialCode}
-                onChange={(e) => handleMaterialChange(index, e)}
+                onChange={(e) => {
+                  handleMaterialChange(index, e);
+                  if (e.target.value) {
+                    fetchMaterialData(index, { code: e.target.value });
+                  }
+                }}
               />
             </label>
             <label className="material-short-text">

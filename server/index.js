@@ -463,16 +463,25 @@ app.get('/transactions', (req, res) => {
   });
 });
 
-app.get('/fetch/material/:code', (req, res) => {
-  const { code } = req.params;
-  const material = storeData[code];
-  if (material) {
-    res.json(material);
-  } else {
-    res.status(404).json({ error: 'Material not found' });
-  }
-});
 
+app.get('/fetch', (req, res) => {
+  const { code, text } = req.query;
+  let query = 'SELECT MaterialCode, MaterialShortText, UOM FROM store WHERE';
+
+  if (code) {
+    query += ` MaterialCode = '${code}'`;
+  } else if (text) {
+    query += ` MaterialShortText LIKE '%${text}%'`;
+  }
+
+  db.query(query, (err, results) => {
+    if (err) {
+      res.status(500).send(err);
+    } else {
+      res.json(results);
+    }
+  });
+});
 
 
 
