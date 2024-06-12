@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import DashboardHeader from '../Dashboard/dashboardheader';
+import PurchaseOrderForm from './PurchaseOrderForm';
 
 const Receipt = () => {
     useEffect(() => {
@@ -13,7 +14,7 @@ const Receipt = () => {
   return (
     <div>
     <DashboardHeader /> 
-    <h1>Receipt</h1>
+    <PurchaseOrderForm/>
     </div>
   );
 };
