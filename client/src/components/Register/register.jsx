@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
 import logo from '../assets/logo.png';
 import { Link } from 'react-router-dom';
@@ -10,28 +10,23 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    document.body.classList.add('signup-page');
-
-    return () => {
-      document.body.classList.remove('signup-page');
-    };
-  }, []);
-
   const createUser = async (event) => {
     event.preventDefault(); // Prevent the default form submission
     setError(null); // Reset error state
     try {
-      await axios.post('http://localhost:7001/register', {
+      const response = await axios.post('http://localhost:7001/register', {
         Email: email,
         Password: password,
       });
-    
-      console.log('User created');
-    } 
-    catch (err) {
+      console.log('User created:', response.data);
+      // Optionally, you can handle success actions here, such as redirecting to login page
+    } catch (err) {
+      if (err.response && err.response.status === 409) {
+        setError('User with this email already exists');
+      } else {
+        setError('Failed to create user');
+      }
       console.error('Error creating user:', err);
-      setError('Failed to create user');
     }
   };
 
@@ -47,10 +42,9 @@ const Register = () => {
             <input
               type="email"
               placeholder="Email ID"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               required
-              onChange={(event) => {
-                setEmail(event.target.value);
-              }}
             />
             <FaEnvelope className="icon" />
           </div>
@@ -58,10 +52,9 @@ const Register = () => {
             <input
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               required
-              onChange={(event) => {
-                setPassword(event.target.value);
-              }}
             />
             <FaLock className="icon" />
           </div>
@@ -79,4 +72,3 @@ const Register = () => {
 };
 
 export default Register;
-
