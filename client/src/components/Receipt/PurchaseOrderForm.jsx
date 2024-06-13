@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './receipt.css';
 
@@ -17,6 +17,20 @@ const PurchaseOrderForm = () => {
   const [materials, setMaterials] = useState([
     { materialCode: '', materialShortText: '', quantity: '', uom: '' }
   ]);
+
+  // Generate random PO No. starting with "40" and followed by 8 random digits
+  useEffect(() => {
+    generateRandomPONo();
+  }, []);
+
+  const generateRandomPONo = () => {
+    const randomDigits = Math.floor(100000000 + Math.random() * 9000000); // Generates a random 8-digit number
+    const poNo = `40${randomDigits}`; // Constructs the PO No. starting with "40"
+    setFormData((prevData) => ({
+      ...prevData,
+      poNo: poNo
+    }));
+  };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -86,11 +100,18 @@ const PurchaseOrderForm = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const fullFormData = { ...formData, materials };
-    console.log(fullFormData);
-    // Here you can handle the form submission, e.g., send data to the server
+    try {
+      const response = await axios.post('http://localhost:7001/submitReceipt', fullFormData);
+      console.log('Submission response:', response.data);
+      alert('Receipt submitted successfully!');
+      // Optionally reset form data or take other actions upon successful submission
+    } catch (error) {
+      console.error('Error submitting receipt:', error);
+      alert('Error submitting receipt.');
+    }
   };
 
   return (
@@ -100,7 +121,7 @@ const PurchaseOrderForm = () => {
         <div className="po-no-date">
           <label className="po-no">
             PO No.:
-            <input type="number" name="poNo" value={formData.poNo} onChange={handleFormChange} />
+            <input type="text" name="poNo" value={formData.poNo} readOnly />
           </label>
           <label className="po-date">
             PO Date:

@@ -508,6 +508,41 @@ app.get('/fetchVendor', (req, res) => {
 
 
 
+app.post('/submitReceipt', (req, res) => {
+  const receiptData = req.body;
+  console.log('Received receipt data:', receiptData);
+  
+  const { poNo, poDate, vendor, vendorCode, location, receiptDate, lrNo, lrDate, materials } = receiptData;
+  
+  // Prepare materials data to be inserted
+  const materialsValues = materials.map(material => [
+    poNo, poDate, material.materialCode, material.materialShortText, 
+    material.quantity, material.uom, vendor, vendorCode, 
+    location, receiptDate, lrNo, lrDate
+  ]);
+  
+  // Insert receipt and materials into 'receipt' table
+  const insertReceiptQuery = `
+    INSERT INTO receipt (
+      \`PONo.\`, \`PODate\`, \`MaterialCode\`, \`MaterialShortText\`, \`Quantity\`, \`UOM\`, 
+      \`Vendor\`, \`VendorCode\`, \`Location\`, \`ReceiptDate\`, \`LRNo.\`, \`LRDate\`
+    ) VALUES ?
+  `;
+  
+  db.query(insertReceiptQuery, [materialsValues], (err, result) => {
+    if (err) {
+      console.error('Error inserting receipt:', err);
+      return res.status(500).send('Error inserting receipt');
+    }
+    
+    console.log('Receipt inserted successfully');
+    res.status(200).send('Receipt submitted successfully');
+  });
+});
+
+
+
+
 const PORT = process.env.PORT || 7001;  
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
