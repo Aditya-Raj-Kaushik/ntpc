@@ -69,12 +69,12 @@ body, html {
     margin-right: 10px;
   }
   
-  .material-fields {
+  .purchase-form-wrapper .material-fields {
     display: flex;
     align-items: center;
   }
   
-  .material-fields:last-child {
+  .purchase-form-wrapper .material-fields:last-child {
     margin-right: 0;
   }
   
@@ -114,7 +114,7 @@ body, html {
     background-color: #c82333;
   }
   
-  button[type="submit"] {
+  .purchase-form-wrapper button[type="submit"] {
     margin-top: 20px;
     padding: 15px;
     width: 100%;
@@ -124,7 +124,7 @@ body, html {
     border-radius: 4px;
   }
   
-  button[type="submit"]:hover {
+  .purchase-form-wrapper button[type="submit"]:hover {
     background-color: #218838;
   }
   

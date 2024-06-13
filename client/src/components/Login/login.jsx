@@ -56,6 +56,7 @@ const Login = () => {
               type='email'
               placeholder='Email ID'
               required
+              value={loginEmail}
               onChange={(event) => setLoginEmail(event.target.value)}
             />
             <FaEnvelope className='icon' />
@@ -65,6 +66,7 @@ const Login = () => {
               type='password'
               placeholder='Password'
               required
+              value={loginPassword}
               onChange={(event) => setLoginPassword(event.target.value)}
             />
             <FaLock className='icon' />
@@ -86,4 +88,3 @@ const Login = () => {
 };
 
 export default Login;
-

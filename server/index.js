@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 require('dotenv').config(); // Import dotenv for environment variables
 
 
@@ -25,54 +26,94 @@ const db = mysql.createConnection({
     database: process.env.DB_NAME || 'ntpc'
 });
 
-
-
-
-
-// Handle login
-app.post('/login', (req, res) => {
-  try {
-      const { Email, Password } = req.body;
-      const SQL = 'SELECT * FROM employee WHERE EmailID = ? AND Password = ?';
-      const values = [Email, Password];
-      db.query(SQL, values, (err, results) => {
-          if (err) {
-              console.error(err);
-              return res.status(500).send({ success: false, error: 'Internal server error' });
-          }
-          if (results.length > 0) {
-              return res.status(200).send({ success: true, message: 'Login successful' });
-          } else {
-              return res.status(401).send({ success: false, error: 'Invalid email or password' });
-          }
-      });
-  } catch (error) {
-      console.error(error);
-      res.status(500).send({ success: false, error: 'Internal server error' });
-  }
-});
-
-
 // Handle registration
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
   try {
-      const { Email, Password } = req.body;
-      const SQL = 'INSERT INTO employee (EmailID, Password) VALUES (?, ?)';
-      const values = [Email, Password];
-      db.query(SQL, values, (err, results) => {
+    const { Email, Password } = req.body;
+
+    // Log the entered password
+    console.log('Entered password (register):', Password);
+
+    // Check if the user already exists
+    const checkUserSQL = 'SELECT * FROM employee WHERE EmailID = ?';
+    const checkUserValues = [Email];
+    db.query(checkUserSQL, checkUserValues, async (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send({ error: 'Database error' });
+      }
+      if (results.length > 0) {
+        return res.status(409).send({ error: 'User already exists' });
+      } else {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(Password, 10);
+        
+        // Log the hashed password and its length
+        console.log('Hashed password:', hashedPassword);
+        console.log('Hashed password length:', hashedPassword.length);
+
+        // Insert the new user
+        const insertUserSQL = 'INSERT INTO employee (EmailID, Password, Role) VALUES (?, ?, ?)';
+        const insertUserValues = [Email, hashedPassword, 'user'];
+        db.query(insertUserSQL, insertUserValues, (err, results) => {
           if (err) {
-              console.error(err);
-              return res.status(500).send({ error: 'Database error' });
+            console.error(err);
+            return res.status(500).send({ error: 'Database error' });
           } else {
-              console.log('User inserted successfully');
-              return res.status(201).send({ message: 'User added' });
+            console.log('User inserted successfully');
+            return res.status(201).send({ message: 'User added' });
           }
-      });
+        });
+      }
+    });
   } catch (error) {
-      console.error(error);
-      return res.status(500).send({ error: 'Internal server error' });
+    console.error(error);
+    return res.status(500).send({ error: 'Internal server error' });
   }
 });
+
+// Endpoint to handle login
+app.post('/login', async (req, res) => {
+  const { Email, Password } = req.body;
+
+  // Log the entered password
+  console.log('Entered password (login):', Password);
+
+  // Retrieve user from database
+  const getUserQuery = 'SELECT * FROM employee WHERE EmailID = ?';
+  db.query(getUserQuery, [Email], async (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send({ error: 'Database error' });
+    }
+
+    // Handle no user found
+    if (results.length === 0) {
+      console.log('No user found with this email.');
+      return res.status(401).send({ error: 'Invalid email or password' });
+    }
+
+    const user = results[0];
+
+    // Log the stored hashed password and its length
+    console.log('Stored hashed password:', user.Password);
+    console.log('Stored hashed password length:', user.Password.length);
+
+    // Compare hashed password
+    const passwordMatch = await bcrypt.compare(Password, user.Password);
+
+    // Log the result of the password comparison
+    console.log('Password match:', passwordMatch);
+
+    if (passwordMatch) {
+      return res.status(200).send({ success: true, message: 'Login successful' });
+    } else {
+      return res.status(401).send({ error: 'Invalid email or password' });
+    }
+  });
+});
+
+
 
 app.get('/Overview', (req, res) => {
     db.query('SELECT * FROM store', (err, rows) => {
