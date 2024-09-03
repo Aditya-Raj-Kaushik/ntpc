@@ -149,7 +149,7 @@ const Action = () => {
   return (
     <div className="table">
       <div className="table__header">
-        <h1>Order Requests</h1>
+        <h1>Store Requisition Approval</h1>
       </div>
       {message && <p className="table__message">{message}</p>}
       {Object.keys(requests).length > 0 ? (

@@ -130,3 +130,47 @@ body{
 .register-link p a:hover{
     text-decoration: underline;
 }
+
+
+/* Media Queries */
+@media (max-width: 480px) {
+    .wrapper {
+        width: 80%;
+        padding: 20px;
+    }
+
+    .wrapper h1 {
+        font-size: 28px;
+    }
+
+    .input-box {
+        height: 50px;
+        margin: 30px 0;
+    }
+
+    .input-box input {
+        font-size: 14px;
+        padding: 15px 35px 15px 15px;
+    }
+
+    .input-box .icon {
+        top: -30px;
+        left: 85%;
+        font-size: 14px;
+    }
+
+    .wrapper button {
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .wrapper .register-link {
+        font-size: 14px;
+    }
+
+    .wrapper .forgot {
+        font-size: 12px;
+        padding-left: 0;
+        text-align: center;
+    }
+}
